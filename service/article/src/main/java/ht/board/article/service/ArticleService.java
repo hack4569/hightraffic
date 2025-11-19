@@ -8,7 +8,7 @@ import ht.board.article.repository.ArticleRepository;
 import ht.board.article.service.request.ArticleCreateRequest;
 import ht.board.article.service.request.ArticleUpdateRequest;
 import ht.board.article.service.response.ArticleResponse;
-import kuke.board.common.snowflake.Snowflake;
+import lsh.board.common.snowflake.Snowflake;
 
 @Service
 @RequiredArgsConstructor

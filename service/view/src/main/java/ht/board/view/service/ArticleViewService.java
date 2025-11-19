@@ -1,6 +1,7 @@
 package ht.board.view.service;
 
 import ht.board.view.repository.ArticleViewCountRepository;
+import ht.board.view.repository.ArticleViewDistributedLockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class ArticleViewService {
 
     public Long increase(Long articleId, Long userId) {
         if (!articleViewDistributedLockRepository.lock(articleId, userId, TTL)) {
+            //현재 조회수 반환
             return articleViewCountRepository.read(articleId);
         }
 
