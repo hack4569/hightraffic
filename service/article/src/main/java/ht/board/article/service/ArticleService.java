@@ -1,6 +1,9 @@
 package ht.board.article.service;
 
 import lombok.RequiredArgsConstructor;
+import lsh.board.common.event.EventType;
+import lsh.board.common.event.payload.ArticleCreatedEventPayload;
+import lsh.board.common.outboxmessagerelay.OutboxEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ht.board.article.entity.Article;
@@ -15,11 +18,26 @@ import lsh.board.common.snowflake.Snowflake;
 public class ArticleService {
     private final Snowflake snowflake = new Snowflake();
     private final ArticleRepository articleRepository;
+    private final OutboxEventPublisher outboxEventPublisher;
 
     @Transactional
     public ArticleResponse create(ArticleCreateRequest request) {
         Article article = articleRepository.save(
                 Article.create(snowflake.nextId(), request.getTitle(), request.getContent(), request.getBoardId(), request.getWriterId())
+        );
+
+        outboxEventPublisher.publish(
+                EventType.ARTICLE_CREATED,
+                ArticleCreatedEventPayload.builder()
+                        .articleId(article.getArticleId())
+                        .title(article.getTitle())
+                        .content(article.getContent())
+                        .boardId(article.getBoardId())
+                        .writerId(article.getWriterId())
+                        .createdAt(article.getCreatedAt())
+                        .modifiedAt(article.getModifiedAt())
+                        .build(),
+                article.getBoardId()
         );
 
         return ArticleResponse.from(article);
